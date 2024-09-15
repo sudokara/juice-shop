@@ -12,7 +12,7 @@ import { faBomb } from '@fortawesome/free-solid-svg-icons'
 import { FormSubmitService } from '../Services/form-submit.service'
 import { TranslateService } from '@ngx-translate/core'
 import { CookieService } from 'ngx-cookie'
-
+import { escape } from 'validator';
 library.add(faBomb)
 
 enum MessageSources {
@@ -82,15 +82,16 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     })
     this.currentAction = this.messageActions[response.action]
     if (response.token) {
-      localStorage.setItem('token', response.token)
+      const sanitizedToken = escape(response.token);
+      localStorage.setItem('token', sanitizedToken)
       const expires = new Date()
       expires.setHours(expires.getHours() + 8)
-      this.cookieService.put('token', response.token, { expires })
+      this.cookieService.put('token', sanitizedToken, { expires })
     }
   }
 
   sendMessage () {
-    const messageBody = this.messageControl.value
+    const messageBody = escape(this.messageControl.value)
     if (messageBody) {
       this.messages.push({
         author: MessageSources.user,
