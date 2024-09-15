@@ -47,7 +47,14 @@ export class PhotoWallComponent implements OnInit {
           // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           memory.caption = `${memory.caption} (© ${memory.User.username})`
         }
+        // get the part after the last /
+        let og_image_name = memory.imagePath.split('/').pop()
+        // replace # with %23
+        let new_image_name = og_image_name.replace('#', '%23')
+        memory.imagePath = memory.imagePath.replace(og_image_name, new_image_name)
         this.slideshowDataSource.push({ url: memory.imagePath, caption: memory.caption })
+        console.error(memory.imagePath)
+        console.error(memory)
       }
     }, (err) => { console.log(err) })
     this.configurationService.getApplicationConfiguration().subscribe((config) => {
