@@ -64,3 +64,12 @@ config/*.yml
 
 # System Files
 .DS_Store
+2024-09-07-ZAP-Report-/zap32x32.png
+2024-09-07-ZAP-Report-/normalize/LICENSE.md
+2024-09-07-ZAP-Report-/normalize/normalize.css
+2024-09-07-ZAP-Report-/themes/original/colors.css
+2024-09-07-ZAP-Report-/themes/original/main.css
+.dccache
+2024-09-07-ZAP-Report-.html
+snyk_os_output.txt
+snyk_output.txt

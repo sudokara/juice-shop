@@ -16,6 +16,15 @@ module.exports = function profileImageUrlUpload () {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.body.imageUrl !== undefined) {
       const url = req.body.imageUrl
+      const validURLPattern = /^https?:\/\//
+      if (!url || !validURLPattern.test(url)) {
+        return res.status(400).send(`
+          <script>
+            alert('Invalid URL. Please enter a valid URL starting with http:// or https://');
+            window.location.href = '${process.env.BASE_PATH}/profile';
+          </script>
+        `);
+      }
       if (url.match(/(.)*solve\/challenges\/server-side(.)*/) !== null) req.app.locals.abused_ssrf_bug = true
       const loggedInUser = security.authenticatedUsers.get(req.cookies.token)
       if (loggedInUser) {
