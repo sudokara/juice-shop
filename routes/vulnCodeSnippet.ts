@@ -73,6 +73,12 @@ export const getVerdict = (vulnLines: number[], neutralLines: number[], selected
 
 exports.checkVulnLines = () => async (req: Request<Record<string, unknown>, Record<string, unknown>, VerdictRequestBody>, res: Response, next: NextFunction) => {
   const key = req.body.key
+  if (key.includes('..') || key.includes('\0')) {
+    res.status(400).json({
+      error: 'Invalid key path'
+    })
+    return
+  }
   let snippetData
   try {
     snippetData = await retrieveCodeSnippet(key)
