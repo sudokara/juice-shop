@@ -54,6 +54,10 @@ export class RegisterComponent implements OnInit {
   }
 
   save () {
+    if (this.passwordControl.value !== this.repeatPasswordControl.value) {
+      this.error = 'PASSWORDS_NOT_EQUAL'
+      return
+    }
     const user = {
       email: this.emailControl.value,
       password: this.passwordControl.value,
