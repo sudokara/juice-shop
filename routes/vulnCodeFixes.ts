@@ -1,4 +1,5 @@
 import { type NextFunction, type Request, type Response } from 'express'
+import path from 'path'
 import * as accuracy from '../lib/accuracy'
 
 const challengeUtils = require('../lib/challengeUtils')
@@ -68,33 +69,36 @@ export const serveCodeFixes = () => (req: Request<FixesRequestParams, Record<str
 
 export const checkCorrectFix = () => async (req: Request<Record<string, unknown>, Record<string, unknown>, VerdictRequestBody>, res: Response, next: NextFunction) => {
   const key = req.body.key
-  if (key.includes('..') || key.includes('\0')) {
+  const sanitizedKey = key.replace(/[^a-zA-Z0-9_-]/g, '');
+  if (key !== sanitizedKey) {
     res.status(400).json({
       error: 'Invalid key path'
     })
     return
   }
   const selectedFix = req.body.selectedFix
-  const fixData = readFixes(key)
+  const fixData = readFixes(sanitizedKey)
   if (fixData.fixes.length === 0) {
     res.status(404).json({
       error: 'No fixes found for the snippet!'
     })
   } else {
     let explanation
-    if (fs.existsSync('./data/static/codefixes/' + key + '.info.yml')) {
-      const codingChallengeInfos = yaml.load(fs.readFileSync('./data/static/codefixes/' + key + '.info.yml', 'utf8'))
+    const baseDir = path.resolve(__dirname, './data/static/codefixes/')
+    const filePath = path.join(baseDir, sanitizedKey + '.info.yml')
+    if (fs.existsSync(filePath)) {
+      const codingChallengeInfos = yaml.load(fs.readFileSync(filePath, 'utf8'))
       const selectedFixInfo = codingChallengeInfos?.fixes.find(({ id }: { id: number }) => id === selectedFix + 1)
       if (selectedFixInfo?.explanation) explanation = res.__(selectedFixInfo.explanation)
     }
     if (selectedFix === fixData.correct) {
-      await challengeUtils.solveFixIt(key)
+      await challengeUtils.solveFixIt(sanitizedKey)
       res.status(200).json({
         verdict: true,
         explanation
       })
     } else {
-      accuracy.storeFixItVerdict(key, false)
+      accuracy.storeFixItVerdict(sanitizedKey, false)
       res.status(200).json({
         verdict: false,
         explanation
